@@ -1,7 +1,10 @@
+import gen_tables.Tables
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import slick.jdbc.SQLServerProfile.api._
 import slick.lifted.ProvenShape
+import sun.plugin.util.UserProfile
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,22 +15,23 @@ import scala.concurrent.ExecutionContext.Implicits.global
 //  last_name  VARCHAR(100) NOT NULL
 //)
 
-case class UserProfile(id: Int, firstName: String, lastName: String)
-
-class UserProfiles(tag: Tag) extends Table[UserProfile](tag, "user_profiles") {
-  def id: Rep[Int] = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def firstName: Rep[String] = column[String]("first_name")
-  def lastName: Rep[String] = column[String]("last_name")
-  def * : ProvenShape[UserProfile] = (id, firstName, lastName) <>(UserProfile.tupled, UserProfile.unapply) // scalastyle:ignore
-}
+//Use code gen instead
+//case class UserProfile(id: Int, firstName: String, lastName: String)
+//
+//class UserProfiles(tag: Tag) extends Table[UserProfile](tag, "user_profiles") {
+//  def id: Rep[Int] = column[Int]("id", O.PrimaryKey, O.AutoInc)
+//  def firstName: Rep[String] = column[String]("first_name")
+//  def lastName: Rep[String] = column[String]("last_name")
+//  def * : ProvenShape[UserProfile] = (id, firstName, lastName) <>(UserProfile.tupled, UserProfile.unapply) // scalastyle:ignore
+//}
 
 class UserProfileRepository(db: Database) {
-  val userProfileQuery: TableQuery[UserProfiles] = TableQuery[UserProfiles]
+  val userProfileQuery: TableQuery[Tables.UserProfiles] = TableQuery[Tables.UserProfiles]
 
-  def insert(user: UserProfile): Future[Int] =
+  def insert(user: Tables.UserProfile): Future[Int] =
     db.run(userProfileQuery += user)
 
-  def get(firstName: String): Future[Option[UserProfile]] =
+  def get(firstName: String): Future[Option[Tables.UserProfile]] =
     db.run(
       userProfileQuery
         .filter(_.firstName === firstName)
@@ -61,11 +65,11 @@ object SqlserverTest extends App {
 
 
   def Insert = {
-    repo.insert(UserProfile(0, "a", "b"))
+    repo.insert(Tables.UserProfile(4, "a2", "b2"))
   }
 
   def Get = {
-    repo.get("a").map( result => {
+    repo.get("updated").map( result => {
       result match {
         case Some(item) => println(item.toString)
         case None    => {}
@@ -78,6 +82,6 @@ object SqlserverTest extends App {
   }
 
   def Delete = {
-    repo.delete(4)
+    repo.delete(6)
   }
 }

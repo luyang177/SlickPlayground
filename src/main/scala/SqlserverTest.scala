@@ -1,3 +1,4 @@
+import H2Test.db
 import gen_tables.Tables
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -54,15 +55,15 @@ object SqlserverTest extends App {
 
   val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("sqlserver")
   val db: JdbcProfile#Backend#Database = dbConfig.db
-
   val repo = new UserProfileRepository(db)
+  try {
+    //val f = Insert
+    val f = Get
+    //val f = Update
+    //val f = Delete
+    Await.ready(f, Duration.Inf)
 
-  val f = Insert
-  //val f = Get
-  //val f = Update
-  //val f = Delete
-  Await.ready(f, Duration.Inf)
-
+  } finally db.close
 
   def Insert = {
     repo.insert(Tables.UserProfile(4, "a2", "b2"))

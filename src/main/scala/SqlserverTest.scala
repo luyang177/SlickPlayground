@@ -40,6 +40,14 @@ class UserProfileRepository(db: Database) {
         .result
         .headOption)
 
+  def get(predict: Tables.UserProfiles => Rep[Boolean]): Future[Option[Tables.UserProfile]] =
+    db.run(
+      userProfileQuery
+        .filter(predict)
+        .take(1)
+        .result
+        .headOption)
+
   def update(id: Int, firstName: String): Future[Int] =
     db.run(
       userProfileQuery
@@ -58,7 +66,8 @@ object SqlserverTest extends App {
   val repo = new UserProfileRepository(db)
   try {
     //val f = Insert
-    val f = Get
+    //val f = Get
+    val f = Get(item => item.lastName === "b")
     //val f = Update
     //val f = Delete
     Await.ready(f, Duration.Inf)
@@ -71,6 +80,15 @@ object SqlserverTest extends App {
 
   def Get = {
     repo.get("updated").map( result => {
+      result match {
+        case Some(item) => println(item.toString)
+        case None    => {}
+      }
+    })
+  }
+
+  def Get(predict: Tables.UserProfiles => Rep[Boolean]) = {
+    repo.get(predict).map( result => {
       result match {
         case Some(item) => println(item.toString)
         case None    => {}
